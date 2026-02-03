@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Markdown 实时预览编辑器 - 微信公众号风格（增强版）</title>
+
+  <!-- 引入Markdown解析器 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+
+  <style>
+    /* 重置样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* 页面基础样式 */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      height: 100vh;
+      overflow: hidden;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* 暗色主题 */
+    body[data-weui-theme="dark"] {
+      background-color: #111;
+      color: #e6e6e6;
+    }
+
+    /* 顶部工具栏 */
+    .toolbar {
+      height: 60px;
+      background-color: white;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    body[data-weui-theme="dark"] .toolbar {
+      background-color: #1e1e1e;
+      border-bottom-color: #404040;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .toolbar-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #07C160;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 按钮样式 */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+      background-color: #07C160;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn:hover {
+      background-color: #059A4C;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background-color: #576B95;
+    }
+
+    .btn-secondary:hover {
+      background-color: #485a7f;
+      box-shadow: 0 2px 8px rgba(87, 107, 149, 0.3);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: #07C160;
+      border: 1px solid #07C160;
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(7, 193, 96, 0.1);
+      box-shadow: 0 2px 8px rgba(7, 193, 96, 0.2);
+    }
+
+    body[data-weui-theme="dark"] .btn-outline {
+      color: #07C160;
+      border-color: #07C160;
+    }
+
+    body[data-weui-theme="dark"] .btn-outline:hover {
+      background-color: rgba(7, 193, 96, 0.2);
+    }
+
+    /* 主容器 */
+    .container {
+      display: flex;
+      height: calc(100vh - 60px);
+      gap: 0;
+    }
+
+    /* 编辑区 */
+    .editor-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: white;
+      border-right: 1px solid #e5e5e5;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    body[data-weui-theme="dark"] .editor-panel {
+      background-color: #1e1e1e;
+      border-right-color: #404040;
+    }
+
+    .panel-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid #e5e5e5;
+      font-weight: bold;
+      font-size: 14px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body[data-weui-theme="dark"] .panel-header {
+      border-bottom-color: #404040;
+      color: #999;
+    }
+
+    .markdown-input {
+      flex: 1;
+      padding: 20px;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      background-color: transparent;
+      color: inherit;
+    }
+
+    /* 预览区 */
+    .preview-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #f8f8f8;
+      overflow: hidden;
+      transition: background-color 0.3s;
+    }
+
+    body[data-weui-theme="dark"] .preview-panel {
+      background-color: #111;
+    }
+
+    .preview-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 30px;
+    }
+
+    .preview-wrapper {
+      max-width: 677px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      min-height: calc(100vh - 180px);
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    body[data-weui-theme="dark"] .preview-wrapper {
+      background-color: rgb(25, 25, 25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 微信公众号文章样式 - 来自 editor1 */
+    .rich_media_content {
+      font-family: -apple-system-font, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 15px;
+      color: rgb(63, 63, 63);
+      background-color: transparent;
+      line-height: 1.75;
+      letter-spacing: 2px;
+    }
+
+    /* 段落 */
+    .rich_media_content p {
+      margin: 0px 8px 1em;
+      padding: 0px;
+      color: rgb(63, 63, 63);
+      font-size: 15px;
+      letter-spacing: 2px;
+      line-height: 1.75;
+      text-align: left;
+    }
+
+    /* 标题 - 使用 editor1 的样式 */
+    .rich_media_content h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: rgb(30, 30, 30);
+      margin: 0.6em 0;
+      line-height: 1.4;
+    }
+
+    .rich_media_content h2 {
+      font-size: 17px;
+      font-weight: bold;
+      color: rgb(30, 30, 30);
+      margin: 0.6em 0;
+      line-height: 1.5;
+    }
+
+    .rich_media_content h3 {
+      font-size: 15px;
+      font-weight: bold;
+      color: rgb(30, 30, 30);
+      margin: 0.5em 0;
+      line-height: 1.5;
+    }
+
+    .rich_media_content h4,
+    .rich_media_content h5,
+    .rich_media_content h6 {
+      font-size: 15px;
+      font-weight: bold;
+      color: rgb(63, 63, 63);
+      margin: 0.4em 0;
+      line-height: 1.5;
+    }
+
+    /* 粗体和斜体 */
+    .rich_media_content strong,
+    .rich_media_content b {
+      font-weight: bold;
+      color: inherit;
+    }
+
+    .rich_media_content em,
+    .rich_media_content i {
+      font-style: italic;
+    }
+
+    .rich_media_content del,
+    .rich_media_content s {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+
+    /* 链接 */
+    .rich_media_content a {
+      color: rgb(0, 128, 255);
+      text-decoration: underline;
+      font-weight: bold;
+    }
+
+    /* 图片 */
+    .rich_media_content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 9px;
+      box-shadow: rgb(180, 180, 180) 0px 0px 0.5em 0px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* 分割线 */
+    .rich_media_content hr {
+      border-style: solid;
+      border-width: 1px 0 0;
+      border-color: rgba(0, 0, 0, 0.1);
+      transform: scale(1, 0.5);
+      margin: 1em 0;
+    }
+
+    /* 代码块 */
+    .rich_media_content pre {
+      margin: 0px 8px 10px;
+      display: block;
+      overflow-x: auto;
+      color: rgb(201, 209, 217);
+      background: rgb(13, 17, 23);
+      text-align: left;
+      line-height: 1.5;
+      border-radius: 8px;
+      padding: 0px;
+      font-size: 14px;
+    }
+
+    .rich_media_content pre code {
+      font-family: Menlo, "Operator Mono", Consolas, Monaco, monospace;
+      font-size: 13px;
+      display: block;
+      padding: 0.5em 1em 1em;
+      overflow-x: auto;
+      line-height: 1.75;
+      color: rgb(201, 209, 217);
+      background: transparent;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* 行内代码 */
+    .rich_media_content code {
+      font-family: Menlo, "Operator Mono", Consolas, Monaco, monospace;
+      font-size: 13px;
+      background-color: rgba(27, 31, 35, 0.05);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      color: rgb(215, 58, 73);
+    }
+
+    /* 引用块 */
+    .rich_media_content blockquote {
+      margin: 1em 8px;
+      padding: 0.8em 1em;
+      border-left: 4px solid rgb(220, 220, 220);
+      background-color: rgba(0, 0, 0, 0.03);
+      color: rgb(99, 99, 99);
+    }
+
+    .rich_media_content blockquote p {
+      margin: 0.5em 0;
+      padding: 0;
+      line-height: 1.75;
+      font-size: 15px;
+      letter-spacing: 2px;
+      color: inherit;
+    }
+
+    /* 列表 */
+    .rich_media_content ul {
+      margin: 1em 8px;
+      padding-left: 1.5em;
+      list-style-type: disc;
+    }
+
+    .rich_media_content ol {
+      margin: 1em 8px;
+      padding-left: 1.5em;
+      list-style-type: decimal;
+    }
+
+    .rich_media_content li {
+      margin: 0.5em 0;
+      color: rgb(63, 63, 63);
+      font-size: 15px;
+      letter-spacing: 2px;
+      line-height: 1.75;
+    }
+
+    /* 表格 - 无斑马纹 */
+    .rich_media_content table {
+      margin: 1em 8px;
+      border-collapse: collapse;
+      width: calc(100% - 16px);
+      font-size: 14px;
+      overflow-x: auto;
+      display: block;
+    }
+
+    .rich_media_content th,
+    .rich_media_content td {
+      padding: 0.6em 1em;
+      border: 1px solid rgb(229, 229, 229);
+      text-align: left;
+    }
+
+    .rich_media_content th {
+      font-weight: bold;
+      background-color: rgb(248, 248, 248);
+      color: rgb(30, 30, 30);
+    }
+
+    .rich_media_content td {
+      color: rgb(63, 63, 63);
+    }
+
+    /* 滚动条样式 */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
+    body[data-weui-theme="dark"] ::-webkit-scrollbar-track {
+      background: #2c2c2c;
+    }
+
+    body[data-weui-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: #555;
+    }
+
+    body[data-weui-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: #666;
+    }
+
+    /* 字数统计 */
+    .stats {
+      padding: 10px 20px;
+      border-top: 1px solid #e5e5e5;
+      font-size: 12px;
+      color: #999;
+      display: flex;
+      gap: 20px;
+    }
+
+    body[data-weui-theme="dark"] .stats {
+      border-top-color: #404040;
+    }
+
+    /* 响应式设计 */
+    @media screen and (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .editor-panel {
+        border-right: none;
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      body[data-weui-theme="dark"] .editor-panel {
+        border-bottom-color: #404040;
+      }
+
+      .preview-wrapper {
+        padding: 20px;
+      }
+
+      .toolbar-title {
+        font-size: 16px;
+      }
+
+      .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      .btn span:not(.icon) {
+        display: none;
+      }
+    }
+
+    /* 加载动画 */
+    .loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #07C160;
+      font-size: 14px;
+      display: none;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #07C160;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 提示消息 */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* 图标 */
+    .icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* 模态框 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    body[data-weui-theme="dark"] .modal-content {
+      background-color: #1e1e1e;
+    }
+
+    .modal-header {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .modal-footer {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .example-item {
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .example-item:hover {
+      border-color: #07C160;
+      background-color: rgba(7, 193, 96, 0.05);
+    }
+
+    .example-item-title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .example-item-desc {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* 文件输入样式 */
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: -9999px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部工具栏 -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="toolbar-title">📝 Markdown 实时预览（增强版）</div>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn btn-outline" onclick="loadExample()">
+        <span class="icon">📄</span>
+        <span>示例</span>
+      </button>
+      <button class="btn btn-outline" onclick="clearEditor()">
+        <span class="icon">🗑️</span>
+        <span>清空</span>
+      </button>
+      <button class="btn btn-outline" onclick="loadCustomCSS()">
+        <span class="icon">🎨</span>
+        <span>加载CSS</span>
+      </button>
+      <button class="btn btn-outline" onclick="resetCSS()">
+        <span class="icon">🔄</span>
+        <span>重置样式</span>
+      </button>
+      <button class="btn" onclick="copyToWeChat()" style="background: linear-gradient(135deg, #07C160 0%, #38CD7F 100%);">
+        <span class="icon">📱</span>
+        <span>复制到微信</span>
+      </button>
+      <button class="btn btn-secondary" onclick="copyHTML()">
+        <span class="icon">📋</span>
+        <span>HTML代码</span>
+      </button>
+      <button class="btn btn-secondary" onclick="downloadHTML()">
+        <span class="icon">💾</span>
+        <span>下载</span>
+      </button>
+      <button class="btn btn-outline" onclick="toggleTheme()">
+        <span class="icon">🌓</span>
+        <span>主题</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="container">
+    <!-- 左侧编辑区 -->
+    <div class="editor-panel">
+      <div class="panel-header">
+        <span>✏️</span>
+        <span>Markdown 编辑器</span>
+      </div>
+      <textarea
+        class="markdown-input"
+        id="markdownInput"
+        placeholder="在这里输入 Markdown 内容...&#10;&#10;支持所有标准 Markdown 语法：&#10;- 标题 (# 到 ######)&#10;- 粗体 (**text**)、斜体 (*text*)&#10;- 列表、代码块、表格&#10;- 链接、图片&#10;- 引用块&#10;- 更多...&#10;&#10;点击右上角\"示例\"按钮查看完整示例！"
+      ></textarea>
+      <div class="stats">
+        <span>字数: <span id="charCount">0</span></span>
+        <span>行数: <span id="lineCount">0</span></span>
+        <span>字符: <span id="wordCount">0</span></span>
+      </div>
+    </div>
+
+    <!-- 右侧预览区 -->
+    <div class="preview-panel">
+      <div class="panel-header">
+        <span>👁️</span>
+        <span>实时预览</span>
+      </div>
+      <div class="preview-content">
+        <div class="preview-wrapper">
+          <div class="rich_media_content" id="preview">
+            <p style="color: #999; text-align: center; padding: 40px 20px;">
+              在左侧输入 Markdown，这里会实时显示预览效果<br><br>
+              <em>试试输入 <code># 标题</code> 或点击"示例"按钮</em>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 加载动画 -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div>处理中...</div>
+  </div>
+
+  <!-- 提示消息 -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 隐藏的文件输入 -->
+  <input type="file" id="cssFileInput" accept=".css" style="display: none;">
+
+  <!-- 示例模态框 -->
+  <div class="modal" id="exampleModal">
+    <div class="modal-content">
+      <div class="modal-header">选择示例模板</div>
+      <div id="exampleList">
+        <div class="example-item" onclick="loadExampleContent('basic')">
+          <div class="example-item-title">🎯 基础示例</div>
+          <div class="example-item-desc">包含常用的标题、段落、列表等基础格式</div>
+        </div>
+        <div class="example-item" onclick="loadExampleContent('full')">
+          <div class="example-item-title">📚 完整示例</div>
+          <div class="example-item-desc">展示所有支持的 Markdown 元素</div>
+        </div>
+        <div class="example-item" onclick="loadExampleContent('article')">
+          <div class="example-item-title">📝 文章模板</div>
+          <div class="example-item-desc">适合写技术博客或文章的模板</div>
+        </div>
+        <div class="example-item" onclick="loadExampleContent('code')">
+          <div class="example-item-title">💻 代码文档</div>
+          <div class="example-item-desc">包含代码块和技术说明的模板</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 配置 marked
+    marked.setOptions({
+      gfm: true,              // GitHub Flavored Markdown
+      breaks: true,           // 换行转换为 <br>
+      pedantic: false,
+      sanitize: false,
+      smartLists: true,
+      smartypants: false
+    });
+
+    // 获取元素
+    const markdownInput = document.getElementById('markdownInput');
+    const preview = document.getElementById('preview');
+    const charCount = document.getElementById('charCount');
+    const lineCount = document.getElementById('lineCount');
+    const wordCount = document.getElementById('wordCount');
+    const cssFileInput = document.getElementById('cssFileInput');
+
+    // 存储自定义CSS
+    let customStyleElement = null;
+
+    // 实时预览
+    markdownInput.addEventListener('input', updatePreview);
+
+    function updatePreview() {
+      const markdown = markdownInput.value;
+
+      if (markdown.trim() === '') {
+        preview.innerHTML = `
+          <p style="color: #999; text-align: center; padding: 40px 20px;">
+            在左侧输入 Markdown，这里会实时显示预览效果<br><br>
+            <em>试试输入 <code># 标题</code> 或点击"示例"按钮</em>
+          </p>
+        `;
+      } else {
+        try {
+          preview.innerHTML = marked.parse(markdown);
+        } catch (error) {
+          preview.innerHTML = `<p style="color: #f44336;">解析错误: ${error.message}</p>`;
+        }
+      }
+
+      updateStats();
+    }
+
+    // 更新统计信息
+    function updateStats() {
+      const text = markdownInput.value;
+      charCount.textContent = text.length;
+      lineCount.textContent = text.split('\n').length;
+      wordCount.textContent = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+    }
+
+    // 主题切换
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = body.getAttribute('data-weui-theme');
+
+      if (currentTheme === 'dark') {
+        body.removeAttribute('data-weui-theme');
+        localStorage.setItem('theme', 'light');
+        showToast('已切换到亮色主题');
+      } else {
+        body.setAttribute('data-weui-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        showToast('已切换到暗色主题');
+      }
+    }
+
+    // 加载自定义CSS
+    function loadCustomCSS() {
+      cssFileInput.click();
+    }
+
+    // 处理CSS文件上传
+    cssFileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.name.endsWith('.css')) {
+        showToast('⚠️ 请选择CSS文件');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const cssContent = event.target.result;
+
+        // 移除旧的自定义样式
+        if (customStyleElement) {
+          customStyleElement.remove();
+        }
+
+        // 创建新的style元素
+        customStyleElement = document.createElement('style');
+        customStyleElement.id = 'custom-css';
+        customStyleElement.textContent = cssContent;
+        document.head.appendChild(customStyleElement);
+
+        showToast('✅ CSS已加载成功！');
+      };
+
+      reader.onerror = function() {
+        showToast('❌ CSS文件读取失败');
+      };
+
+      reader.readAsText(file);
+
+      // 重置文件输入，允许重复加载同一文件
+      cssFileInput.value = '';
+    });
+
+    // 重置CSS样式
+    function resetCSS() {
+      if (customStyleElement) {
+        customStyleElement.remove();
+        customStyleElement = null;
+        showToast('✅ 已重置为默认样式');
+      } else {
+        showToast('ℹ️ 当前使用的是默认样式');
+      }
+    }
+
+    // 复制到微信（复制富文本内容）
+    function copyToWeChat() {
+      if (markdownInput.value.trim() === '') {
+        showToast('⚠️ 请先输入内容');
+        return;
+      }
+
+      try {
+        // 创建一个临时容器
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.top = '0';
+        document.body.appendChild(tempContainer);
+
+        // 克隆预览内容
+        const clonedContent = preview.cloneNode(true);
+
+        // 添加内联样式，确保复制时保留样式
+        const styledContent = addInlineStyles(clonedContent);
+        tempContainer.appendChild(styledContent);
+
+        // 选中内容
+        const range = document.createRange();
+        range.selectNodeContents(tempContainer);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // 执行复制
+        const successful = document.execCommand('copy');
+
+        // 清理
+        selection.removeAllRanges();
+        document.body.removeChild(tempContainer);
+
+        if (successful) {
+          showToast('✅ 已复制！可直接粘贴到微信公众号编辑器');
+        } else {
+          showToast('❌ 复制失败，请使用"HTML代码"按钮');
+        }
+      } catch (err) {
+        console.error('复制失败:', err);
+        showToast('❌ 复制失败，请使用"HTML代码"按钮');
+      }
+    }
+
+    // 为元素添加内联样式 - 使用 editor1 的样式
+    function addInlineStyles(element) {
+      // 基础文本样式
+      const baseStyles = {
+        'font-family': '-apple-system-font, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif',
+        'font-size': '15px',
+        'line-height': '1.75',
+        'color': 'rgb(63, 63, 63)',
+        'letter-spacing': '2px',
+        'word-wrap': 'break-word',
+        'word-break': 'break-word',
+        'background-color': 'rgb(255, 255, 255)'
+      };
+
+      // 为根元素添加样式
+      Object.keys(baseStyles).forEach(key => {
+        element.style[key.replace(/-./g, x => x[1].toUpperCase())] = baseStyles[key];
+      });
+
+      // 样式映射表 - 使用 editor1 的样式定义
+      const styleMap = {
+        'h1': 'font-size: 24px; font-weight: bold; margin: 0.6em 0; line-height: 1.4; color: rgb(30, 30, 30); letter-spacing: 2px;',
+        'h2': 'font-size: 17px; font-weight: bold; margin: 0.6em 0; line-height: 1.5; color: rgb(30, 30, 30); letter-spacing: 2px;',
+        'h3': 'font-size: 15px; font-weight: bold; margin: 0.5em 0; line-height: 1.5; color: rgb(30, 30, 30); letter-spacing: 2px;',
+        'h4': 'font-size: 15px; font-weight: bold; margin: 0.4em 0; line-height: 1.5; color: rgb(63, 63, 63); letter-spacing: 2px;',
+        'h5': 'font-size: 15px; font-weight: bold; margin: 0.4em 0; line-height: 1.5; color: rgb(63, 63, 63); letter-spacing: 2px;',
+        'h6': 'font-size: 15px; font-weight: bold; margin: 0.4em 0; line-height: 1.5; color: rgb(99, 99, 99); letter-spacing: 2px;',
+        'p': 'margin: 0px 8px 1em; padding: 0px; line-height: 1.75; color: rgb(63, 63, 63); font-size: 15px; letter-spacing: 2px;',
+        'section': 'margin-left: 8px; margin-right: 8px;',
+        'strong': 'font-weight: bold;',
+        'b': 'font-weight: bold;',
+        'em': 'font-style: italic;',
+        'i': 'font-style: italic;',
+        'code': 'font-family: Menlo, "Operator Mono", Consolas, Monaco, monospace; font-size: 13px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; border-radius: 3px; color: rgb(215, 58, 73);',
+        'pre': 'margin: 0px 8px 10px; display: block; overflow-x: auto; color: rgb(201, 209, 217); background: rgb(13, 17, 23); text-align: left; line-height: 1.5; border-radius: 8px; font-size: 14px;',
+        'blockquote': 'margin: 1em 8px; padding: 0.8em 1em; border-left: 4px solid rgb(220, 220, 220); background-color: rgba(0, 0, 0, 0.03); color: rgb(99, 99, 99);',
+        'ul': 'margin: 1em 8px; padding-left: 1.5em; list-style-type: disc;',
+        'ol': 'margin: 1em 8px; padding-left: 1.5em; list-style-type: decimal;',
+        'li': 'margin: 0.5em 0; line-height: 1.75; color: rgb(63, 63, 63); font-size: 15px; letter-spacing: 2px;',
+        'table': 'margin: 1em 8px; border-collapse: collapse; width: calc(100% - 16px); font-size: 14px;',
+        'th': 'padding: 0.6em 1em; border: 1px solid rgb(229, 229, 229); text-align: left; font-weight: bold; background-color: rgb(248, 248, 248); color: rgb(30, 30, 30);',
+        'td': 'padding: 0.6em 1em; border: 1px solid rgb(229, 229, 229); text-align: left; color: rgb(63, 63, 63);',
+        'img': 'max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 9px; box-shadow: rgb(180, 180, 180) 0px 0px 0.5em 0px;',
+        'a': 'color: rgb(0, 128, 255); text-decoration: underline; font-weight: bold;',
+        'hr': 'border-style: solid; border-width: 1px 0 0; border-color: rgba(0, 0, 0, 0.1); transform: scale(1, 0.5); margin: 1em 0;',
+        'del': 'text-decoration: line-through; opacity: 0.7;',
+        's': 'text-decoration: line-through; opacity: 0.7;',
+        'u': 'text-decoration: underline;',
+        'mark': 'background-color: rgb(255, 243, 205); padding: 0.1em 0.3em; border-radius: 2px;',
+        'small': 'font-size: 12px; color: rgb(99, 99, 99);',
+        'sub': 'font-size: 0.75em; vertical-align: sub;',
+        'sup': 'font-size: 0.75em; vertical-align: super;',
+        'kbd': 'display: inline-block; padding: 3px 6px; font-size: 12px; line-height: 1; color: rgb(68, 77, 86); vertical-align: middle; background-color: rgb(250, 251, 252); border: 1px solid rgb(209, 213, 218); border-radius: 3px; box-shadow: inset 0 -1px 0 rgb(209, 213, 218); font-family: Menlo, Consolas, monospace;'
+      };
+
+      // 为所有子元素添加内联样式
+      Object.keys(styleMap).forEach(tag => {
+        const elements = element.getElementsByTagName(tag);
+        for (let el of elements) {
+          el.setAttribute('style', (el.getAttribute('style') || '') + ' ' + styleMap[tag]);
+
+          // 特殊处理：pre code 需要使用代码块样式
+          if (tag === 'code' && el.parentElement && el.parentElement.tagName.toLowerCase() === 'pre') {
+            el.setAttribute('style', 'font-family: Menlo, "Operator Mono", Consolas, Monaco, monospace; font-size: 13px; display: block; padding: 0.5em 1em 1em; overflow-x: auto; line-height: 1.75; white-space: pre-wrap; word-wrap: break-word; color: rgb(201, 209, 217); background: transparent;');
+          }
+
+          // 注意：不添加表格斑马纹效果（按照 editor1 的要求）
+        }
+      });
+
+      return element;
+    }
+
+    // 复制 HTML 代码
+    function copyHTML() {
+      const html = preview.innerHTML;
+      const fullHTML = generateFullHTML(html);
+
+      navigator.clipboard.writeText(fullHTML).then(() => {
+        showToast('✅ HTML代码已复制到剪贴板');
+      }).catch(() => {
+        showToast('❌ 复制失败，请重试');
+      });
+    }
+
+    // 下载 HTML
+    function downloadHTML() {
+      const html = preview.innerHTML;
+      const fullHTML = generateFullHTML(html);
+
+      const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'article_' + new Date().getTime() + '.html';
+      a.click();
+      URL.revokeObjectURL(url);
+
+      showToast('✅ HTML 文件已下载');
+    }
+
+    // 生成完整的 HTML
+    function generateFullHTML(content) {
+      // 如果有自定义CSS，包含在生成的HTML中
+      const customCSS = customStyleElement ? customStyleElement.textContent : '';
+
+      return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的文章</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: #f5f5f5;
+    }
+    .article-container {
+      max-width: 677px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 微信公众号样式 */
+    .rich_media_content {
+      font-family: -apple-system-font, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 15px;
+      color: rgb(63, 63, 63);
+      line-height: 1.75;
+      letter-spacing: 2px;
+    }
+    .rich_media_content p {
+      margin: 0px 8px 1em;
+      padding: 0px;
+      color: rgb(63, 63, 63);
+      font-size: 15px;
+      letter-spacing: 2px;
+      line-height: 1.75;
+    }
+    .rich_media_content h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: rgb(30, 30, 30);
+      margin: 0.6em 0;
+      line-height: 1.4;
+    }
+    .rich_media_content h2 {
+      font-size: 17px;
+      font-weight: bold;
+      color: rgb(30, 30, 30);
+      margin: 0.6em 0;
+      line-height: 1.5;
+    }
+    .rich_media_content h3 {
+      font-size: 15px;
+      font-weight: bold;
+      color: rgb(30, 30, 30);
+      margin: 0.5em 0;
+      line-height: 1.5;
+    }
+    .rich_media_content h4,
+    .rich_media_content h5,
+    .rich_media_content h6 {
+      font-size: 15px;
+      font-weight: bold;
+      color: rgb(63, 63, 63);
+      margin: 0.4em 0;
+      line-height: 1.5;
+    }
+    .rich_media_content strong,
+    .rich_media_content b {
+      font-weight: bold;
+    }
+    .rich_media_content em,
+    .rich_media_content i {
+      font-style: italic;
+    }
+    .rich_media_content del,
+    .rich_media_content s {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+    .rich_media_content a {
+      color: rgb(0, 128, 255);
+      text-decoration: underline;
+      font-weight: bold;
+    }
+    .rich_media_content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 9px;
+      box-shadow: rgb(180, 180, 180) 0px 0px 0.5em 0px;
+      display: block;
+      margin: 0 auto;
+    }
+    .rich_media_content hr {
+      border-style: solid;
+      border-width: 1px 0 0;
+      border-color: rgba(0, 0, 0, 0.1);
+      transform: scale(1, 0.5);
+      margin: 1em 0;
+    }
+    .rich_media_content pre {
+      margin: 0px 8px 10px;
+      display: block;
+      overflow-x: auto;
+      color: rgb(201, 209, 217);
+      background: rgb(13, 17, 23);
+      text-align: left;
+      line-height: 1.5;
+      border-radius: 8px;
+      padding: 0px;
+      font-size: 14px;
+    }
+    .rich_media_content pre code {
+      font-family: Menlo, "Operator Mono", Consolas, Monaco, monospace;
+      font-size: 13px;
+      display: block;
+      padding: 0.5em 1em 1em;
+      overflow-x: auto;
+      line-height: 1.75;
+      color: rgb(201, 209, 217);
+      background: transparent;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .rich_media_content code {
+      font-family: Menlo, "Operator Mono", Consolas, Monaco, monospace;
+      font-size: 13px;
+      background-color: rgba(27, 31, 35, 0.05);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      color: rgb(215, 58, 73);
+    }
+    .rich_media_content blockquote {
+      margin: 1em 8px;
+      padding: 0.8em 1em;
+      border-left: 4px solid rgb(220, 220, 220);
+      background-color: rgba(0, 0, 0, 0.03);
+      color: rgb(99, 99, 99);
+    }
+    .rich_media_content blockquote p {
+      margin: 0.5em 0;
+      padding: 0;
+      line-height: 1.75;
+      font-size: 15px;
+      letter-spacing: 2px;
+      color: inherit;
+    }
+    .rich_media_content ul {
+      margin: 1em 8px;
+      padding-left: 1.5em;
+      list-style-type: disc;
+    }
+    .rich_media_content ol {
+      margin: 1em 8px;
+      padding-left: 1.5em;
+      list-style-type: decimal;
+    }
+    .rich_media_content li {
+      margin: 0.5em 0;
+      color: rgb(63, 63, 63);
+      font-size: 15px;
+      letter-spacing: 2px;
+      line-height: 1.75;
+    }
+    .rich_media_content table {
+      margin: 1em 8px;
+      border-collapse: collapse;
+      width: calc(100% - 16px);
+      font-size: 14px;
+    }
+    .rich_media_content th,
+    .rich_media_content td {
+      padding: 0.6em 1em;
+      border: 1px solid rgb(229, 229, 229);
+      text-align: left;
+    }
+    .rich_media_content th {
+      font-weight: bold;
+      background-color: rgb(248, 248, 248);
+      color: rgb(30, 30, 30);
+    }
+    .rich_media_content td {
+      color: rgb(63, 63, 63);
+    }
+    ${customCSS ? '\n    /* 自定义CSS */\n    ' + customCSS : ''}
+  </style>
+</head>
+<body>
+  <div class="article-container">
+    <div class="rich_media_content">
+${content}
+    </div>
+  </div>
+</body>
+</html>`;
+    }
+
+    // 清空编辑器
+    function clearEditor() {
+      if (markdownInput.value.trim() === '' || confirm('确定要清空所有内容吗？')) {
+        markdownInput.value = '';
+        updatePreview();
+        showToast('已清空内容');
+      }
+    }
+
+    // 显示示例模态框
+    function loadExample() {
+      document.getElementById('exampleModal').classList.add('show');
+    }
+
+    // 关闭模态框
+    function closeModal() {
+      document.getElementById('exampleModal').classList.remove('show');
+    }
+
+    // 加载示例内容
+    function loadExampleContent(type) {
+      const examples = {
+        basic: `# 欢迎使用 Markdown 编辑器
+
+这是一个基础示例，展示常用的 Markdown 格式。
+
+## 文本样式
+
+这是普通段落。你可以使用 **粗体**、*斜体*、~~删除线~~ 等样式。
+
+## 列表
+
+无序列表：
+- 项目 1
+- 项目 2
+- 项目 3
+
+有序列表：
+1. 第一步
+2. 第二步
+3. 第三步
+
+## 代码
+
+行内代码：\`console.log('Hello')\`
+
+代码块：
+\`\`\`javascript
+function greet(name) {
+  console.log(\`Hello, \${name}!\`);
+}
+\`\`\`
+
+## 引用
+
+> 这是一段引用文字。
+> 可以用来展示名言或重要内容。
+
+## 链接
+
+[访问 GitHub](https://github.com)
+
+---
+
+开始编辑你的内容吧！`,
+
+        full: `# Markdown 完整示例
+
+## 一、标题层级
+
+### 三级标题
+#### 四级标题
+##### 五级标题
+###### 六级标题
+
+## 二、文本格式
+
+**粗体文字** | *斜体文字* | ***粗斜体*** | ~~删除线~~
+
+H<sub>2</sub>O | X<sup>2</sup>
+
+## 三、列表
+
+### 无序列表
+- 项目 1
+  - 子项 1.1
+  - 子项 1.2
+- 项目 2
+
+### 有序列表
+1. 第一项
+2. 第二项
+   1. 子项 2.1
+   2. 子项 2.2
+
+### 任务列表
+- [x] 已完成
+- [ ] 待完成
+
+## 四、代码
+
+行内代码：\`const x = 10;\`
+
+代码块：
+\`\`\`javascript
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+\`\`\`
+
+## 五、引用
+
+> 这是一段引用。
+>
+> > 嵌套引用。
+
+## 六、表格
+
+| 功能 | 支持 | 说明 |
+|------|------|------|
+| 标题 | ✅ | H1-H6 |
+| 列表 | ✅ | 有序/无序 |
+| 代码 | ✅ | 行内/块 |
+
+## 七、链接和图片
+
+[GitHub](https://github.com)
+
+![示例图片](https://via.placeholder.com/600x300)
+
+---
+
+这是分割线
+
+## 八、其他元素
+
+<kbd>Ctrl</kbd> + <kbd>C</kbd> 复制`,
+
+        article: `# 如何写出优秀的技术文章
+
+> 分享一些写作技巧和最佳实践
+
+## 📋 前言
+
+写作是一项重要的技能，特别是对于技术人员来说。一篇好的技术文章不仅能帮助他人，也能提升自己的理解。
+
+## 🎯 核心要点
+
+### 1. 明确目标读者
+
+在开始写作前，先思考：
+- 读者的技术水平如何？
+- 他们想解决什么问题？
+- 需要多少背景知识？
+
+### 2. 结构清晰
+
+一个好的文章结构：
+
+1. **引言** - 说明文章目的
+2. **正文** - 详细展开内容
+3. **示例** - 提供实际案例
+4. **总结** - 回顾要点
+
+### 3. 代码示例
+
+提供清晰的代码示例：
+
+\`\`\`javascript
+// 好的代码示例应该：
+// 1. 简洁明了
+// 2. 有适当注释
+// 3. 可以直接运行
+
+function example() {
+  console.log("Hello, World!");
+}
+\`\`\`
+
+## 💡 写作技巧
+
+| 技巧 | 说明 | 重要性 |
+|------|------|--------|
+| 简洁 | 避免冗余 | ⭐⭐⭐⭐⭐ |
+| 准确 | 技术细节正确 | ⭐⭐⭐⭐⭐ |
+| 易读 | 排版舒适 | ⭐⭐⭐⭐ |
+
+## 📝 实践建议
+
+> **提示**: 写完后多读几遍，站在读者角度思考是否清晰易懂。
+
+- ✅ 使用标题层级组织内容
+- ✅ 适当使用列表和表格
+- ✅ 添加代码示例
+- ✅ 配图说明（如有必要）
+- ❌ 避免长篇大论
+- ❌ 不要假设读者知道所有概念
+
+## 🎉 总结
+
+好的技术文章需要：
+
+1. 明确的目标
+2. 清晰的结构
+3. 实用的示例
+4. 易读的排版
+
+现在开始写你的第一篇文章吧！
+
+---
+
+*本文使用 Markdown 编写，渲染为微信公众号风格*`,
+
+        code: `# API 使用文档
+
+## 📖 概述
+
+这是一个示例 API 文档，展示如何使用 RESTful API。
+
+## 🚀 快速开始
+
+### 安装
+
+\`\`\`bash
+npm install example-api
+# 或
+yarn add example-api
+\`\`\`
+
+### 基础用法
+
+\`\`\`javascript
+import { ApiClient } from 'example-api';
+
+const client = new ApiClient({
+  apiKey: 'your-api-key',
+  baseUrl: 'https://api.example.com'
+});
+\`\`\`
+
+## 📡 API 端点
+
+### 1. 获取用户信息
+
+**请求:**
+\`\`\`http
+GET /api/users/:id
+\`\`\`
+
+**参数:**
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| id | string | ✅ | 用户ID |
+
+**响应:**
+\`\`\`json
+{
+  "id": "123",
+  "name": "张三",
+  "email": "zhangsan@example.com"
+}
+\`\`\`
+
+### 2. 创建用户
+
+**请求:**
+\`\`\`http
+POST /api/users
+Content-Type: application/json
+\`\`\`
+
+**请求体:**
+\`\`\`json
+{
+  "name": "李四",
+  "email": "lisi@example.com"
+}
+\`\`\`
+
+**示例代码:**
+\`\`\`javascript
+const response = await client.createUser({
+  name: '李四',
+  email: 'lisi@example.com'
+});
+
+console.log(response.data);
+\`\`\`
+
+## ⚠️ 错误处理
+
+| 状态码 | 说明 |
+|--------|------|
+| 200 | 成功 |
+| 400 | 请求参数错误 |
+| 401 | 未授权 |
+| 404 | 资源不存在 |
+| 500 | 服务器错误 |
+
+**错误响应示例:**
+\`\`\`json
+{
+  "error": "Unauthorized",
+  "message": "Invalid API key"
+}
+\`\`\`
+
+## 💡 最佳实践
+
+> **提示**: 始终检查 API 响应的状态码
+
+- ✅ 使用环境变量存储 API 密钥
+- ✅ 实现错误重试机制
+- ✅ 添加请求超时设置
+- ❌ 不要在客户端暴露密钥
+
+## 📚 更多示例
+
+### 错误处理
+
+\`\`\`javascript
+try {
+  const user = await client.getUser('123');
+  console.log(user);
+} catch (error) {
+  if (error.status === 404) {
+    console.error('用户不存在');
+  } else {
+    console.error('请求失败:', error.message);
+  }
+}
+\`\`\`
+
+### 批量操作
+
+\`\`\`javascript
+const users = await Promise.all([
+  client.getUser('1'),
+  client.getUser('2'),
+  client.getUser('3')
+]);
+\`\`\`
+
+---
+
+**版本:** 1.0.0
+**更新时间:** 2026-01-29`
+      };
+
+      markdownInput.value = examples[type];
+      updatePreview();
+      closeModal();
+      showToast('已加载示例内容');
+    }
+
+    // 显示提示消息
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // 恢复主题设置
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.body.setAttribute('data-weui-theme', 'dark');
+      }
+
+      // 初始化统计
+      updateStats();
+    });
+
+    // 点击模态框背景关闭
+    document.getElementById('exampleModal').addEventListener('click', (e) => {
+      if (e.target.id === 'exampleModal') {
+        closeModal();
+      }
+    });
+
+    // 键盘快捷键
+    document.addEventListener('keydown', (e) => {
+      // Ctrl/Cmd + S 下载
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        downloadHTML();
+      }
+
+      // Ctrl/Cmd + Shift + C 复制
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        copyHTML();
+      }
+
+      // Ctrl/Cmd + D 切换主题
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault();
+        toggleTheme();
+      }
+
+      // Esc 关闭模态框
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // 防止页面刷新时丢失内容
+    window.addEventListener('beforeunload', (e) => {
+      if (markdownInput.value.trim() !== '') {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  </script>
+</body>
+</html>
+    }

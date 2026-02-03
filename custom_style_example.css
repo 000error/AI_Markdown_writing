@@ -1,0 +1,56 @@
+/* 自定义样式示例 - 可用于测试"加载CSS"功能 */
+
+/* 修改标题颜色为紫色主题 */
+.rich_media_content h1 {
+  color: #6B46C1 !important;
+  border-bottom: 3px solid #6B46C1;
+  padding-bottom: 0.3em;
+}
+
+.rich_media_content h2 {
+  color: #805AD5 !important;
+  border-left: 4px solid #805AD5;
+  padding-left: 0.5em;
+}
+
+.rich_media_content h3 {
+  color: #9F7AEA !important;
+}
+
+/* 修改代码块背景为深蓝色 */
+.rich_media_content pre {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+  border: 1px solid #3b82f6;
+}
+
+/* 修改行内代码为橙色主题 */
+.rich_media_content code {
+  background-color: rgba(251, 146, 60, 0.1) !important;
+  color: #ea580c !important;
+  border: 1px solid rgba(251, 146, 60, 0.3);
+}
+
+/* 修改引用块样式 */
+.rich_media_content blockquote {
+  border-left: 4px solid #10b981 !important;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%) !important;
+  color: #065f46 !important;
+}
+
+/* 修改链接颜色 */
+.rich_media_content a {
+  color: #7c3aed !important;
+  text-decoration: none !important;
+  border-bottom: 2px solid #7c3aed;
+  transition: all 0.3s;
+}
+
+/* 修改表格样式 */
+.rich_media_content th {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  color: white !important;
+}
+
+.rich_media_content tr:nth-child(even) {
+  background-color: rgba(139, 92, 246, 0.05) !important;
+}

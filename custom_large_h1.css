@@ -1,0 +1,244 @@
+/**
+ * ============================================
+ * 自定义样式 - 大号一级标题
+ * Custom Style - Large H1
+ * ============================================
+ *
+ * 与默认微信公众号样式完全一致
+ * 唯一差异：h1 标题大小为 48px（默认 24px 的两倍）
+ *
+ * 使用方法：
+ * 在 markdown_editor_enhanced.html 中点击"🎨 加载CSS"
+ * 选择此文件即可应用大号标题样式
+ * ============================================
+ */
+
+/* ============================================
+   一级标题 - 48px（默认24px的两倍）
+   ============================================ */
+.rich_media_content h1 {
+  font-size: 48px !important;           /* ✨ 唯一修改：48px（默认24px × 2） */
+  font-weight: bold;
+  color: rgb(30, 30, 30);
+  margin: 0.6em 0;
+  line-height: 1.4;
+}
+
+/* ============================================
+   以下样式与默认完全一致（无需修改）
+   ============================================ */
+
+/* 二级标题 - 17px */
+.rich_media_content h2 {
+  font-size: 17px;
+  font-weight: bold;
+  color: rgb(30, 30, 30);
+  margin: 0.6em 0;
+  line-height: 1.5;
+}
+
+/* 三级标题 - 15px */
+.rich_media_content h3 {
+  font-size: 15px;
+  font-weight: bold;
+  color: rgb(30, 30, 30);
+  margin: 0.5em 0;
+  line-height: 1.5;
+}
+
+/* 四级及以下标题 */
+.rich_media_content h4,
+.rich_media_content h5,
+.rich_media_content h6 {
+  font-size: 15px;
+  font-weight: bold;
+  color: rgb(63, 63, 63);
+  margin: 0.4em 0;
+  line-height: 1.5;
+}
+
+/* 段落 */
+.rich_media_content p {
+  margin: 0px 8px 1em;
+  padding: 0px;
+  color: rgb(63, 63, 63);
+  font-size: 15px;
+  letter-spacing: 2px;
+  line-height: 1.75;
+  text-align: left;
+}
+
+/* 粗体 */
+.rich_media_content strong,
+.rich_media_content b {
+  font-weight: bold;
+  color: inherit;
+}
+
+/* 斜体 */
+.rich_media_content em,
+.rich_media_content i {
+  font-style: italic;
+}
+
+/* 删除线 */
+.rich_media_content del,
+.rich_media_content s {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* 链接 */
+.rich_media_content a {
+  color: rgb(0, 128, 255);
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+/* 图片 */
+.rich_media_content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 9px;
+  box-shadow: rgb(180, 180, 180) 0px 0px 0.5em 0px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* 分割线 */
+.rich_media_content hr {
+  border-style: solid;
+  border-width: 1px 0 0;
+  border-color: rgba(0, 0, 0, 0.1);
+  transform: scale(1, 0.5);
+  margin: 1em 0;
+}
+
+/* 代码块 */
+.rich_media_content pre {
+  margin: 0px 8px 10px;
+  display: block;
+  overflow-x: auto;
+  color: rgb(201, 209, 217);
+  background: rgb(13, 17, 23);
+  text-align: left;
+  line-height: 1.5;
+  border-radius: 8px;
+  padding: 0px;
+  font-size: 14px;
+}
+
+.rich_media_content pre code {
+  font-family: Menlo, "Operator Mono", Consolas, Monaco, monospace;
+  font-size: 13px;
+  display: block;
+  padding: 0.5em 1em 1em;
+  overflow-x: auto;
+  line-height: 1.75;
+  color: rgb(201, 209, 217);
+  background: transparent;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* 行内代码 */
+.rich_media_content code {
+  font-family: Menlo, "Operator Mono", Consolas, Monaco, monospace;
+  font-size: 13px;
+  background-color: rgba(27, 31, 35, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  color: rgb(215, 58, 73);
+}
+
+.rich_media_content pre code {
+  background-color: transparent;
+  padding: 0.5em 1em 1em;
+  color: rgb(201, 209, 217);
+}
+
+/* 引用块 */
+.rich_media_content blockquote {
+  margin: 1em 8px;
+  padding: 0.8em 1em;
+  border-left: 4px solid rgb(220, 220, 220);
+  background-color: rgba(0, 0, 0, 0.03);
+  color: rgb(99, 99, 99);
+}
+
+.rich_media_content blockquote p {
+  margin: 0.5em 0;
+  padding: 0;
+  line-height: 1.75;
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: inherit;
+}
+
+/* 无序列表 */
+.rich_media_content ul {
+  margin: 1em 8px;
+  padding-left: 1.5em;
+  list-style-type: disc;
+}
+
+/* 有序列表 */
+.rich_media_content ol {
+  margin: 1em 8px;
+  padding-left: 1.5em;
+  list-style-type: decimal;
+}
+
+/* 列表项 */
+.rich_media_content li {
+  margin: 0.5em 0;
+  color: rgb(63, 63, 63);
+  font-size: 15px;
+  letter-spacing: 2px;
+  line-height: 1.75;
+}
+
+/* 表格 */
+.rich_media_content table {
+  margin: 1em 8px;
+  border-collapse: collapse;
+  width: calc(100% - 16px);
+  font-size: 14px;
+  overflow-x: auto;
+  display: block;
+}
+
+.rich_media_content th,
+.rich_media_content td {
+  padding: 0.6em 1em;
+  border: 1px solid rgb(229, 229, 229);
+  text-align: left;
+}
+
+.rich_media_content th {
+  font-weight: bold;
+  background-color: rgb(248, 248, 248);
+  color: rgb(30, 30, 30);
+}
+
+.rich_media_content td {
+  color: rgb(63, 63, 63);
+}
+
+/* ============================================
+   使用说明
+   ============================================
+
+   1. 打开 markdown_editor_enhanced.html
+   2. 点击工具栏的"🎨 加载CSS"按钮
+   3. 选择此文件（custom_large_h1.css）
+   4. 一级标题将变为 48px（原来的两倍大小）
+   5. 其他所有样式保持不变
+
+   对比：
+   - 默认 h1: 24px
+   - 此样式 h1: 48px ✨
+   - 其他元素：完全一致
+
+   ============================================
+*/
