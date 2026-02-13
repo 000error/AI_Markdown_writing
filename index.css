@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply antialiased text-gray-900 bg-[#F5F5F7];
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* 暗色主题 */
+  body[data-weui-theme="dark"] {
+    @apply bg-[#111] text-[#e6e6e6];
+  }
+
+  /* 暗色主题 - 覆盖主要背景色 */
+  body[data-weui-theme="dark"] > div {
+    background-color: #111 !important;
+  }
+
+  /* 暗色主题 - 左侧面板 */
+  body[data-weui-theme="dark"] .bg-white\/60,
+  body[data-weui-theme="dark"] .bg-white {
+    background-color: #1e1e1e !important;
+  }
+
+  /* 暗色主题 - 右侧面板 */
+  body[data-weui-theme="dark"] .bg-\[#F5F5F7\] {
+    background-color: #111 !important;
+  }
+
+  /* 暗色主题 - 卡片和容器 */
+  body[data-weui-theme="dark"] .bg-gray-50,
+  body[data-weui-theme="dark"] .bg-gray-100 {
+    background-color: #2a2a2a !important;
+  }
+
+  /* 暗色主题 - 边框 */
+  body[data-weui-theme="dark"] .border-black\/5,
+  body[data-weui-theme="dark"] .border-gray-100,
+  body[data-weui-theme="dark"] .border-gray-50 {
+    border-color: #404040 !important;
+  }
+
+  /* 暗色主题 - 文字颜色 */
+  body[data-weui-theme="dark"] .text-\[#1d1d1f\],
+  body[data-weui-theme="dark"] .text-gray-900,
+  body[data-weui-theme="dark"] .text-gray-700 {
+    color: #e6e6e6 !important;
+  }
+
+  body[data-weui-theme="dark"] .text-gray-600 {
+    color: #999 !important;
+  }
+
+  body[data-weui-theme="dark"] .text-\[#86868b\] {
+    color: #999 !important;
+  }
+
+  /* 暗色主题 - 输入框和文本区域 */
+  body[data-weui-theme="dark"] textarea,
+  body[data-weui-theme="dark"] input {
+    background-color: #2a2a2a !important;
+    color: #e6e6e6 !important;
+    border-color: #404040 !important;
+  }
+
+  /* 暗色主题 - 按钮 */
+  body[data-weui-theme="dark"] .bg-gray-200 {
+    background-color: #3a3a3a !important;
+    color: #e6e6e6 !important;
+  }
+
+  /* 暗色主题 - 阴影 */
+  body[data-weui-theme="dark"] .shadow-\[0_20px_40px_rgba\(0\,0\,0\,0\.04\)\],
+  body[data-weui-theme="dark"] .shadow-2xl,
+  body[data-weui-theme="dark"] .shadow-lg {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+  }
+}
+
+@layer components {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+  .custom-scrollbar:hover::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c1c1c4;
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a6;
+  }
+
+  /* 暗色主题滚动条 */
+  body[data-weui-theme="dark"] .custom-scrollbar::-webkit-scrollbar-track {
+    background: #2c2c2c;
+  }
+  body[data-weui-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #555;
+  }
+  body[data-weui-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #666;
+  }
+
+  /* Prose styling overrides for Apple aesthetic */
+  .prose h1, .prose h2, .prose h3 { color: #1d1d1f; letter-spacing: -0.02em; }
+  .prose p { color: #3a3a3c; line-height: 1.6; }
+}
+
+@layer utilities {
+  .animate-in { animation-duration: 0.2s; animation-fill-mode: forwards; animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1); }
+  .fade-in { animation-name: fadeIn; }
+  .zoom-in-95 { animation-name: zoomIn95; }
+  .slide-in-from-bottom-5 { animation-name: slideInBottom; }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn95 { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideInBottom { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }

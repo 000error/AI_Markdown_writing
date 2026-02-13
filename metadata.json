@@ -1,0 +1,5 @@
+{
+  "name": "ContentMorph - AI Content Formatter",
+  "description": "A powerful dual-pane content editor that uses Gemini AI to transform and format your text for various platforms like Xiaohongshu, WeChat, and more.",
+  "requestFramePermissions": []
+}
