@@ -6,6 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      base: '/AI_Markdown_writing/',
       server: {
         port: 3000,
         host: '0.0.0.0',
