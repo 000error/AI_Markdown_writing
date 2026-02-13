@@ -155,17 +155,24 @@ Model: gpt-4o 或 gpt-5-nano
 
 ```
 AI_Markdown_writing/
+├── api/
+│   └── generate.js              # Serverless API 路由
 ├── components/
-│   └── MarkdownRenderer.tsx    # Markdown 渲染组件
+│   └── MarkdownRenderer.tsx     # Markdown 渲染组件
 ├── services/
-│   └── geminiService.ts        # API 服务
-├── types.ts                    # TypeScript 类型定义
-├── constants.tsx               # 常量配置
-├── App.tsx                     # 主应用组件
-├── index.tsx                   # 入口文件
-├── index.html                  # HTML 模板
-├── vite.config.ts              # Vite 配置
-└── package.json                # 项目配置
+│   └── geminiService.ts         # API 服务封装
+├── App.tsx                      # 主应用组件
+├── index.tsx                    # 应用入口
+├── index.html                   # HTML 模板
+├── index.css                    # 全局样式
+├── types.ts                     # TypeScript 类型定义
+├── constants.tsx                # 常量和模板配置
+├── vite.config.ts               # Vite 构建配置
+├── tailwind.config.js           # Tailwind CSS 配置
+├── tsconfig.json                # TypeScript 配置
+├── vercel.json                  # Vercel 部署配置
+├── package.json                 # 项目依赖配置
+└── README.md                    # 项目文档
 ```
 
 ## 🎨 自定义样式
